@@ -720,7 +720,7 @@ class PatchSet(object):
         """
         if debugmode:
             debug("normalize filenames")
-        for i,p in enumerate(self.items):
+        for i, p in enumerate(self.items):
             if debugmode:
                 debug("    patch type = " + p.type)
                 debug("    source = " + str(p.source, encoding="utf-8"))
@@ -789,7 +789,7 @@ class PatchSet(object):
         maxdiff = 0  # max number of changes for single file
                      # (for histogram width calculation)
         for patch in self.items:
-            i,d = 0,0
+            i, d = 0, 0
             for hunk in patch.hunks:
                 for line in hunk.text:
                     if line.startswith(b'+'):
@@ -805,7 +805,7 @@ class PatchSet(object):
             maxdiff = max(maxdiff, i+d)
         output = ''
         statlen = len(str(maxdiff))  # stats column width
-        for i,n in enumerate(names):
+        for i, n in enumerate(names):
             # %-19s | %-4d %s
             format = " %-" + str(namelen) + "s | %" + str(statlen) + "s %s\n"
 
@@ -876,7 +876,7 @@ class PatchSet(object):
                 strip = 0
 
         #for fileno, filename in enumerate(self.source):
-        for i,p in enumerate(self.items):
+        for i, p in enumerate(self.items):
             if strip:
                 debug("stripping %s leading component(s) from:" % strip)
                 debug("   %s" % p.source)
@@ -1010,13 +1010,13 @@ class PatchSet(object):
             for h in p.hunks:
                 h.startsrc, h.starttgt = h.starttgt, h.startsrc
                 h.linessrc, h.linestgt = h.linestgt, h.linessrc
-                for i,line in enumerate(h.text):
+                for i, line in enumerate(h.text):
                     # need to use line[0:1] here, because line[0]
                     # returns int instead of bytes on Python 3
                     if line[0:1] == b'+':
                         h.text[i] = b'-' + line[1:]
                     elif line[0:1] == b'-':
-                        h.text[i] = b'+' +line[1:]
+                        h.text[i] = b'+' + line[1:]
 
     def revert(self, strip=0, root=None):
         """ apply patch in reverse order """
@@ -1097,7 +1097,8 @@ class PatchSet(object):
 
         srclineno = 1
 
-        lineends = {b'\n':0, b'\r\n':0, b'\r':0}
+        lineends = {b'\n': 0, b'\r\n': 0, b'\r': 0}
+
         def get_line():
             """
             local utility function - return line from source stream
@@ -1201,7 +1202,7 @@ def main():
         sys.exit()
     readstdin = (sys.argv[-1:] == ['--'] and not args)
 
-    verbosity_levels = {0:logging.WARNING, 1:logging.INFO, 2:logging.DEBUG}
+    verbosity_levels = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
     loglevel = verbosity_levels[options.verbosity]
     logformat = "%(message)s"
     logger.setLevel(loglevel)
