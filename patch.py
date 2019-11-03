@@ -38,11 +38,13 @@ import sys
 
 PY3K = sys.version_info >= (3, 0)
 
-# PEP 3114
-if not PY3K:
-    compat_next = lambda gen: gen.next()
-else:
-    compat_next = lambda gen: gen.__next__()
+
+def compat_next(gen):
+    # PEP 3114
+    if not PY3K:
+        return gen.next()
+    else:
+        return gen.__next__()
 
 
 def tostr(b):
