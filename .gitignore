@@ -1,7 +1,10 @@
 __pycache__
 *.pyc
 *.pyo
-./*.egg-info
-./build
-./dist
-./.eggs
+*.egg-info
+build
+dist
+.eggs
+.tox
+.idea
+.coverage
