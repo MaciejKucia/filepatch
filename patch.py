@@ -10,10 +10,7 @@
 """
 from __future__ import print_function
 
-__author__ = "anatoly techtonik <techtonik@gmail.com>"
 __version__ = "1.16"
-__license__ = "MIT"
-__url__ = "https://github.com/techtonik/python-patch"
 
 import copy
 import logging
@@ -220,16 +217,6 @@ class Hunk(object):
         self.invalid = False
         self.desc = ''
         self.text = []
-
-#  def apply(self, estream):
-#    """ write hunk data into enumerable stream
-#        return strings one by one until hunk is
-#        over
-#
-#        enumerable stream are tuples (lineno, line)
-#        where lineno starts with 0
-#    """
-#    pass
 
 
 class Patch(object):
@@ -648,7 +635,7 @@ class PatchSet(object):
 
         self._normalize_filenames()
 
-        return (self.errors == 0)
+        return self.errors == 0
 
     def _detect_type(self, p):
         """ detect and return type for the specified Patch object
@@ -811,10 +798,7 @@ class PatchSet(object):
         output = ''
         statlen = len(str(maxdiff))  # stats column width
         for i, n in enumerate(names):
-            # %-19s | %-4d %s
             format = " %-" + str(namelen) + "s | %" + str(statlen) + "s %s\n"
-
-            hist = ''
             # -- calculating histogram --
             width = len(format % ('', '', ''))
             histwidth = max(2, 80 - width)
@@ -908,7 +892,6 @@ class PatchSet(object):
             hunkno = 0
             hunk = p.hunks[hunkno]
             hunkfind = []
-            hunkreplace = []
             validhunks = 0
             canpatch = False
             for lineno, line in enumerate(f2fp):
@@ -917,8 +900,6 @@ class PatchSet(object):
                 elif lineno+1 == hunk.startsrc:
                     hunkfind = [x[1:].rstrip(b"\r\n") for x in hunk.text if
                                 x[0] in b" -"]
-                    hunkreplace = [x[1:].rstrip(b"\r\n") for x in hunk.text if
-                                   x[0] in b" +"]
                     hunklineno = 0
 
                     # todo \ No newline at end of file
@@ -1002,7 +983,7 @@ class PatchSet(object):
             os.chdir(prevdir)
 
         # todo: check for premature eof
-        return (errors == 0)
+        return errors == 0
 
     def _reverse(self):
         """ reverse patch direction (this doesn't touch filenames) """
@@ -1046,7 +1027,6 @@ class PatchSet(object):
 
         lineno = 1
         line = fp.readline()
-        hno = None
         try:
             for hno, h in enumerate(hunks):
                 # skip to first line of the hunk
@@ -1211,7 +1191,7 @@ def main():
     else:
         patchfile = args[0]
         urltest = patchfile.split(':')[0]
-        if (':' in patchfile and urltest.isalpha() and len(urltest) > 1):
+        if ':' in patchfile and urltest.isalpha() and len(urltest) > 1:
             # one char before : is a windows drive letter
             patch = fromurl(patchfile)
         else:
@@ -1235,13 +1215,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Legend:
-# [ ]  - some thing to be done
-# [w]  - official wart, external or internal that is unlikely to be fixed
-
-# [ ] API break (2.x) wishlist
-# PatchSet.items  -->  PatchSet.patches
-
-# [ ] run --revert test for all dataset items
-# [ ] run .parse() / .dump() test for dataset
