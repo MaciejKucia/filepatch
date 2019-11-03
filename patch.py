@@ -169,7 +169,7 @@ def fromfile(filename):
     fp = open(filename, "rb")
     res = patchset.parse(fp)
     fp.close()
-    if res == True:
+    if res is True:
         return patchset
     return False
 
@@ -366,7 +366,7 @@ class PatchSet(object):
                     header.append(fe.line)
                     fe.next()
                 if fe.is_empty:
-                    if p == None:
+                    if p is None:
                         debug("no patch data found")  # error is shown later
                         self.errors += 1
                     else:
@@ -479,7 +479,7 @@ class PatchSet(object):
 
             if filenames:
                 if line.startswith(b"--- "):
-                    if srcname != None:
+                    if srcname is not None:
                         # XXX testcase
                         warning("skipping false patch for %s" % srcname)
                         srcname = None
@@ -500,7 +500,7 @@ class PatchSet(object):
                         filenames = False
                         headscan = True
                 elif not line.startswith(b"+++ "):
-                    if srcname != None:
+                    if srcname is not None:
                         warning("skipping invalid patch with no target for %s"
                                 % srcname)
                         self.errors += 1
@@ -513,7 +513,7 @@ class PatchSet(object):
                     filenames = False
                     headscan = True
                 else:
-                    if tgtname != None:
+                    if tgtname is not None:
                         # XXX seems to be a dead branch
                         warning("skipping invalid patch - double target at "
                                 "line %d" % (lineno+1))
