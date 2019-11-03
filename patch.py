@@ -23,7 +23,7 @@ import re
 try:
     from StringIO import StringIO
 except ImportError:
-    from io import BytesIO as StringIO # python 3
+    from io import BytesIO as StringIO  # python 3
 try:
     import urllib2 as urllib_request
 except ImportError:
@@ -44,6 +44,7 @@ if not PY3K:
 else:
     compat_next = lambda gen: gen.__next__()
 
+
 def tostr(b):
     """ Python 3 bytes encoder. Used to print filename in
         diffstat output. Assumes that filenames are in utf-8.
@@ -55,16 +56,16 @@ def tostr(b):
     #     information loss
     return b.decode('utf-8')
 
-
-#------------------------------------------------
 # Logging is controlled by logger named after the
 # module name (e.g. 'patch' for patch.py module)
+
 
 logger = logging.getLogger(__name__)
 
 debug = logger.debug
 info = logger.info
 warning = logger.warning
+
 
 class NullHandler(logging.Handler):
     """ Copied from Python 2.7 to avoid getting
@@ -73,10 +74,13 @@ class NullHandler(logging.Handler):
     """
     def handle(self, record):
         pass
+
     def emit(self, record):
         pass
+
     def createLock(self):
         self.lock = None
+
 
 streamhandler = logging.StreamHandler()
 
@@ -84,6 +88,7 @@ streamhandler = logging.StreamHandler()
 logger.addHandler(NullHandler())
 
 debugmode = False
+
 
 def setdebug():
     global debugmode, streamhandler
@@ -100,9 +105,8 @@ def setdebug():
 
     streamhandler.setFormatter(logging.Formatter(logformat))
 
-
-#------------------------------------------------
 # Constants for Patch/PatchSet types
+
 
 DIFF = PLAIN = "plain"
 GIT = "git"
@@ -112,13 +116,12 @@ SVN = SUBVERSION = "svn"
 # Patches of different type
 MIXED = MIXED = "mixed"
 
-
-#------------------------------------------------
 # Helpers (these could come with Python stdlib)
 
 # x...() function are used to work with paths in
 # cross-platform manner - all paths use forward
 # slashes even on Windows.
+
 
 def xisabs(filename):
     """ Cross-platform version of `os.path.isabs()`
@@ -129,9 +132,10 @@ def xisabs(filename):
         return True
     elif filename.startswith(b'\\'):  # Windows
         return True
-    elif re.match(b'\\w:[\\\\/]', filename): # Windows
+    elif re.match(b'\\w:[\\\\/]', filename):  # Windows
         return True
     return False
+
 
 def xnormpath(path):
     """ Cross-platform version of os.path.normpath """
@@ -139,6 +143,7 @@ def xnormpath(path):
     normalized = posixpath.normpath(path).replace(b'\\', b'/')
     # fold the result
     return posixpath.normpath(normalized)
+
 
 def xstrip(filename):
     """ Make relative path out of absolute by stripping
@@ -155,8 +160,6 @@ def xstrip(filename):
             filename = re.sub(b'^[\\\\/]+', b'', filename)
     return filename
 
-#-----------------------------------------------
-# Main API functions
 
 def fromfile(filename):
     """ Parse patch file. If successful, returns
@@ -176,7 +179,7 @@ def fromstring(s):
     """ Parse text string and return PatchSet()
         object (or False if parsing fails)
     """
-    ps = PatchSet( StringIO(s) )
+    ps = PatchSet(StringIO(s))
     if ps.errors == 0:
         return ps
     return False
@@ -187,7 +190,7 @@ def fromurl(url):
         if an error occured. Note that this also
         can throw urlopen() exceptions.
     """
-    ps = PatchSet( urllib_request.urlopen(url) )
+    ps = PatchSet(urllib_request.urlopen(url))
     if ps.errors == 0:
         return ps
     return False
@@ -208,13 +211,13 @@ class Hunk(object):
     """ Parsed hunk data container (hunk starts with @@ -R +R @@) """
 
     def __init__(self):
-        self.startsrc=None #: line count starts with 1
-        self.linessrc=None
-        self.starttgt=None
-        self.linestgt=None
-        self.invalid=False
-        self.desc=''
-        self.text=[]
+        self.startsrc = None  #: line count starts with 1
+        self.linessrc = None
+        self.starttgt = None
+        self.linestgt = None
+        self.invalid = False
+        self.desc = ''
+        self.text = []
 
 #  def apply(self, estream):
 #    """ write hunk data into enumerable stream
@@ -288,7 +291,6 @@ class PatchSet(object):
         # hunkactual variable is used to calculate hunk lines for comparison
         hunkactual = dict(linessrc=None, linestgt=None)
 
-
         class wrapumerate(enumerate):
             """Enumerate wrapper that uses boolean end of stream status instead
             of StopIteration exception, and properties to access line
@@ -333,14 +335,14 @@ class PatchSet(object):
                 return self._lineno
 
         # define states (possible file regions) that direct parse flow
-        headscan  = True  # start with scanning header
-        filenames = False # lines starting with --- and +++
+        headscan = True  # start with scanning header
+        filenames = False  # lines starting with --- and +++
 
         hunkhead = False  # @@ -R +R @@ sequence
         hunkbody = False  #
         hunkskip = False  # skipping invalid hunk mode
 
-        hunkparsed = False # state after successfully parsed hunk
+        hunkparsed = False  # state after successfully parsed hunk
 
         # regexp to match start of hunk, used groups - 1,3,4,6
         re_hunk_start = re.compile(b"^@@ -(\d+)(,(\d+))? \+(\d+)(,(\d+))? @@")
@@ -547,7 +549,7 @@ class PatchSet(object):
                             filenames = False
                             headscan = True
                         else:
-                            if p: # for the first run p is None
+                            if p:  # for the first run p is None
                                 self.items.append(p)
                             p = Patch()
                             p.source = srcname
@@ -584,10 +586,12 @@ class PatchSet(object):
                     hunk = Hunk()
                     hunk.startsrc = int(match.group(1))
                     hunk.linessrc = 1
-                    if match.group(3): hunk.linessrc = int(match.group(3))
+                    if match.group(3):
+                        hunk.linessrc = int(match.group(3))
                     hunk.starttgt = int(match.group(4))
                     hunk.linestgt = 1
-                    if match.group(6): hunk.linestgt = int(match.group(6))
+                    if match.group(6):
+                        hunk.linestgt = int(match.group(6))
                     hunk.invalid = False
                     hunk.desc = match.group(7)[1:].rstrip()
                     hunk.text = []
@@ -613,7 +617,7 @@ class PatchSet(object):
                 if len(self.items) == 0:
                     warning("error: no patch data found!")
                     return False
-                else: # extra data at the end of file
+                else:  # extra data at the end of file
                     pass
             else:
                 warning("error: patch stream is incomplete!")
@@ -626,7 +630,7 @@ class PatchSet(object):
 
         # XXX fix total hunks calculation
         debug("total files: %d  total hunks: %d" % (len(self.items),
-            sum(len(p.hunks) for p in self.items)))
+              sum(len(p.hunks) for p in self.items)))
 
         # ---- detect patch and patchset types ----
         for idx, p in enumerate(self.items):
@@ -655,13 +659,13 @@ class PatchSet(object):
         #  - next line is ===... delimiter
         #  - filename is followed by revision number
         # TODO add SVN revision
-        if (len(p.header) > 1 and p.header[-2].startswith(b"Index: ")
-              and p.header[-1].startswith(b"="*67)):
+        if (len(p.header) > 1 and p.header[-2].startswith(b"Index: ") and
+           p.header[-1].startswith(b"="*67)):
             return SVN
 
         # common checks for both HG and GIT
         DVCS = ((p.source.startswith(b'a/') or p.source == b'/dev/null')
-            and (p.target.startswith(b'b/') or p.target == b'/dev/null'))
+                and (p.target.startswith(b'b/') or p.target == b'/dev/null'))
 
         # GIT type check
         #  - header[-2] is like "diff --git a/oldname b/newname"
@@ -705,7 +709,6 @@ class PatchSet(object):
                     return HG
 
         return PLAIN
-
 
     def _normalize_filenames(self):
         """ sanitize filenames, normalizing paths, i.e.:
@@ -774,7 +777,6 @@ class PatchSet(object):
             self.items[i].source = p.source
             self.items[i].target = p.target
 
-
     def diffstat(self):
         """ calculate diffstat and return as a string
             Notes:
@@ -787,7 +789,7 @@ class PatchSet(object):
         delta = 0    # size change in bytes
         namelen = 0
         maxdiff = 0  # max number of changes for single file
-                     # (for histogram width calculation)
+        # (for histogram width calculation)
         for patch in self.items:
             i, d = 0, 0
             for hunk in patch.hunks:
@@ -827,10 +829,9 @@ class PatchSet(object):
             output += (format % (tostr(names[i]), str(insert[i] + delete[i]),
                                  hist))
 
-        output += (" %d files changed, %d insertions(+), %d deletions(-), %+d bytes"
-                   % (len(names), sum(insert), sum(delete), delta))
+        output += (" %d files changed, %d insertions(+), %d deletions(-), %+d "
+                   "bytes" % (len(names), sum(insert), sum(delete), delta))
         return output
-
 
     def findfile(self, old, new):
         """ return name of file to be patched or None """
@@ -850,7 +851,6 @@ class PatchSet(object):
                 elif exists(new):
                     return new
             return None
-
 
     def apply(self, strip=0, root=None):
         """ Apply parsed patch, optionally stripping leading components
@@ -875,7 +875,6 @@ class PatchSet(object):
                         % strip)
                 strip = 0
 
-        #for fileno, filename in enumerate(self.source):
         for i, p in enumerate(self.items):
             if strip:
                 debug("stripping %s leading component(s) from:" % strip)
@@ -917,7 +916,6 @@ class PatchSet(object):
                                 x[0] in b" -"]
                     hunkreplace = [x[1:].rstrip(b"\r\n") for x in hunk.text if
                                    x[0] in b" +"]
-                    #pprint(hunkreplace)
                     hunklineno = 0
 
                     # todo \ No newline at end of file
@@ -925,7 +923,7 @@ class PatchSet(object):
                 # check hunks in source file
                 if lineno+1 < hunk.startsrc+len(hunkfind)-1:
                     if line.rstrip(b"\r\n") == hunkfind[hunklineno]:
-                        hunklineno+=1
+                        hunklineno += 1
                     else:
                         errors += 1
                         info("file %d/%d:\t %s" % (i+1, total, filename))
@@ -953,8 +951,8 @@ class PatchSet(object):
                 if lineno+1 == hunk.startsrc+len(hunkfind)-1:
                     debug(" hunk no.%d for file %s  -- is ready to be patched"
                           % (hunkno+1, filename))
-                    hunkno+=1
-                    validhunks+=1
+                    hunkno += 1
+                    validhunks += 1
                     if hunkno < len(p.hunks):
                         hunk = p.hunks[hunkno]
                     else:
@@ -1003,7 +1001,6 @@ class PatchSet(object):
         # todo: check for premature eof
         return (errors == 0)
 
-
     def _reverse(self):
         """ reverse patch direction (this doesn't touch filenames) """
         for p in self.items:
@@ -1024,7 +1021,6 @@ class PatchSet(object):
         reverted._reverse()
         return reverted.apply(strip, root)
 
-
     def can_patch(self, filename):
         """ Check if specified filename can be patched. Returns None if file
         can not be found among source filenames. False if patch can not be
@@ -1037,7 +1033,6 @@ class PatchSet(object):
             if filename == abspath(p.source):
                 return self._match_file_hunks(filename, p.hunks)
         return None
-
 
     def _match_file_hunks(self, filepath, hunks):
         matched = True
@@ -1053,7 +1048,7 @@ class PatchSet(object):
             for hno, h in enumerate(hunks):
                 # skip to first line of the hunk
                 while lineno < h.starttgt:
-                    if not len(line): # eof
+                    if not len(line):  # eof
                         debug("check failed - premature eof before hunk: %d"
                               % (hno+1))
                         raise NoMatch
@@ -1081,7 +1076,6 @@ class PatchSet(object):
         fp.close()
         return matched
 
-
     def patch_stream(self, instream, hunks):
         """ Generator that yields stream patched with hunks iterable
 
@@ -1105,7 +1099,7 @@ class PatchSet(object):
             collecting line end statistics on the way
             """
             line = instream.readline()
-                # 'U' mode works only with text files
+            # 'U' mode works only with text files
             if line.endswith(b"\r\n"):
                 lineends[b"\r\n"] += 1
             elif line.endswith(b"\n"):
@@ -1136,12 +1130,11 @@ class PatchSet(object):
                     if sum([bool(lineends[x]) for x in lineends]) == 1:
                         newline = [x for x in lineends if lineends[x] != 0][0]
                         yield line2write.rstrip(b"\r\n")+newline
-                    else: # newlines are mixed
+                    else:  # newlines are mixed
                         yield line2write
 
         for line in instream:
             yield line
-
 
     def write_hunks(self, srcname, tgtname, hunks):
         src = open(srcname, "rb")
@@ -1156,7 +1149,6 @@ class PatchSet(object):
         # [ ] TODO: add test for permission copy
         shutil.copymode(srcname, tgtname)
         return True
-
 
     def dump(self):
         for p in self.items:
@@ -1177,8 +1169,8 @@ def main():
     import sys
 
     opt = OptionParser(usage="1. %prog [options] unified.diff\n"
-                      "       2. %prog [options] http://host/patch\n"
-                      "       3. %prog [options] -- < unified.diff",
+                       "       2. %prog [options] http://host/patch\n"
+                       "       3. %prog [options] -- < unified.diff",
                        version="python-patch %s" % __version__)
     opt.add_option("-q", "--quiet", action="store_const", dest="verbosity",
                    const=0, help="print only warnings and errors", default=1)
@@ -1216,8 +1208,7 @@ def main():
     else:
         patchfile = args[0]
         urltest = patchfile.split(':')[0]
-        if (':' in patchfile and urltest.isalpha()
-            and len(urltest) > 1):
+        if (':' in patchfile and urltest.isalpha() and len(urltest) > 1):
             # one char before : is a windows drive letter
             patch = fromurl(patchfile)
         else:
