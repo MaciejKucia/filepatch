@@ -41,6 +41,7 @@ from os.path import abspath, dirname, exists, join, isdir, isfile
 from tempfile import mkdtemp
 
 import filepatch as patch
+from filepatch.patchset import PatchSetTypes
 
 try:
   getcwdu = os.getcwdu
@@ -317,7 +318,7 @@ class TestPatchParse(unittest.TestCase):
 class TestPatchSetDetection(unittest.TestCase):
     def test_svn_detected(self):
         pto = patch.fromfile(join(TESTS, "01uni_multi/01uni_multi.patch"))
-        self.assertEqual(pto.type, patch.SVN)
+        self.assertEqual(pto.type, PatchSetTypes.SVN)
 
 # generate tests methods for TestPatchSetDetection - one for each patch file
 def generate_detection_test(filename, patchtype):
@@ -333,13 +334,13 @@ for filename in os.listdir(TESTDATA):
   if isdir(join(TESTDATA, filename)):
     continue
 
-  difftype = patch.PLAIN
+  difftype = PatchSetTypes.PLAIN
   if filename.startswith('git-'):
-    difftype = patch.GIT
+    difftype = PatchSetTypes.GIT
   if filename.startswith('hg-'):
-    difftype = patch.HG
+    difftype = PatchSetTypes.HG
   if filename.startswith('svn-'):
-    difftype = patch.SVN
+    difftype = PatchSetTypes.SVN
 
   name = 'test_'+filename
   test = generate_detection_test(filename, difftype)
