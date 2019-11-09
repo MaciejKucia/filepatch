@@ -16,44 +16,13 @@ import copy
 import logging
 import re
 
-# cStringIO doesn't support unicode in 2.5
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import BytesIO as StringIO  # python 3
-try:
-    import urllib2 as urllib_request
-except ImportError:
-    import urllib.request as urllib_request
+from io import BytesIO as StringIO
+import urllib.request as urllib_request
 
 from os.path import exists, isfile, abspath
 import os
 import posixpath
 import shutil
-import sys
-
-
-PY3K = sys.version_info >= (3, 0)
-
-
-def compat_next(gen):
-    # PEP 3114
-    if not PY3K:
-        return gen.next()
-    else:
-        return gen.__next__()
-
-
-def tostr(b):
-    """ Python 3 bytes encoder. Used to print filename in
-        diffstat output. Assumes that filenames are in utf-8.
-    """
-    if not PY3K:
-        return b
-
-    # [ ] figure out how to print non-utf-8 filenames without
-    #     information loss
-    return b.decode('utf-8')
 
 # Logging is controlled by logger named after the
 # module name (e.g. 'patch' for patch.py module)
@@ -303,8 +272,8 @@ class PatchSet(object):
                     return False
 
                 try:
-                    self._lineno, self._line = compat_next(super(wrapumerate,
-                                                                 self))
+                    self._lineno, self._line = \
+                        super(wrapumerate, self).__next__()
                 except StopIteration:
                     self._exhausted = True
                     self._line = False
@@ -813,8 +782,8 @@ class PatchSet(object):
                 dwidth = 1 if 0 < dratio < 1 else int(dratio)
                 hist = "+"*int(iwidth) + "-"*int(dwidth)
             # -- /calculating +- histogram --
-            output += (format % (tostr(names[i]), str(insert[i] + delete[i]),
-                                 hist))
+            output += (format % (
+                names[i].decode('utf-8'), str(insert[i] + delete[i]), hist))
 
         output += (" %d files changed, %d insertions(+), %d deletions(-), %+d "
                    "bytes" % (len(names), sum(insert), sum(delete), delta))
