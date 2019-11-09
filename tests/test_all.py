@@ -406,38 +406,5 @@ class TestPatchApply(unittest.TestCase):
         self.assertTrue(pto.apply(strip=2, root=treeroot))
 
 
-class TestHelpers(unittest.TestCase):
-    # unittest setting
-    longMessage = True
-
-    absolute = [b'/', b'c:\\', b'c:/', b'\\', b'/path', b'c:\\path']
-    relative = [b'path', b'path:\\', b'path:/', b'path\\', b'path/', b'path\\path']
-
-    def test_xisabs(self):
-        for path in self.absolute:
-            self.assertTrue(patch.xisabs(path), 'Target path: ' + repr(path))
-        for path in self.relative:
-            self.assertFalse(patch.xisabs(path), 'Target path: ' + repr(path))
-
-    def test_xnormpath(self):
-        path = b"../something/..\\..\\file.to.patch"
-        self.assertEqual(patch.xnormpath(path), b'../../file.to.patch')
-
-    def test_xstrip(self):
-        for path in self.absolute[:4]:
-            self.assertEqual(patch.xstrip(path), b'')
-        for path in self.absolute[4:6]:
-            self.assertEqual(patch.xstrip(path), b'path')
-        # test relative paths are not affected
-        for path in self.relative:
-            self.assertEqual(patch.xstrip(path), path)
-
-    def test_pathstrip(self):
-        self.assertEqual(patch.pathstrip(b'path/to/test/name.diff', 2), b'test/name.diff')
-        self.assertEqual(patch.pathstrip(b'path/name.diff', 1), b'name.diff')
-        self.assertEqual(patch.pathstrip(b'path/name.diff', 0), b'path/name.diff')
-
-# ----------------------------------------------------------------------------
-
 if __name__ == '__main__':
     unittest.main()
