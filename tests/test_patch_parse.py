@@ -13,11 +13,8 @@ def testfile(name):
 
 class TestPatchParse(unittest.TestCase):
     def test_fromstring(self):
-        try:
-            f = open(join(TESTS, "01uni_multi/01uni_multi.patch"), "rb")
+        with open(join(TESTS, "01uni_multi/01uni_multi.patch"), "rb") as f:
             readstr = f.read()
-        finally:
-            f.close()
         pst = fromstring(readstr)
         self.assertEqual(len(pst), 5)
 

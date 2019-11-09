@@ -4,7 +4,6 @@ from filepatch.utils import xisabs, xnormpath, pathstrip, xstrip
 
 
 class TestHelpers(unittest.TestCase):
-    # unittest setting
     longMessage = True
 
     absolute = [b'/', b'c:\\', b'c:/', b'\\', b'/path', b'c:\\path']

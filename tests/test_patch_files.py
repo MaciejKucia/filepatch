@@ -33,7 +33,7 @@ class TestPatchFiles(unittest.TestCase):
             if f1:
                 f1.close()
 
-    def _assert_dirs_equal(self, dir1, dir2, ignore=[]):
+    def _assert_dirs_equal(self, dir1, dir2, ignore=None):
         """
         compare dir2 with reference dir1, ignoring entries
         from supplied list
@@ -128,7 +128,7 @@ def add_test_methods(cls):
 
     # list testcases - every test starts with number
     # and add them as test* methods
-    testptn = re.compile(r"^(?P<name>\d{2,}[^\.]+).*$")
+    testptn = re.compile(r"^(?P<name>\d{2,}[^.]+).*$")
 
     testset = [testptn.match(e).group('name') for e in listdir(TESTS) if
                testptn.match(e)]
