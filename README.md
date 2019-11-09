@@ -1,7 +1,5 @@
 Library to parse and apply unified diffs.
 
-[![Build Status](https://img.shields.io/travis/techtonik/python-patch/master)](https://travis-ci.org/techtonik/python-patch/branches) [![PyPI](https://img.shields.io/pypi/v/patch)](https://pypi.python.org/pypi/patch)
-
 ### Features
 
  * Python 2 and 3 compatible
@@ -23,32 +21,13 @@ Things that don't work out of the box:
  * Version control specific properties
  * Non-unified diff formats
 
+## Credits
 
-### Usage
-
-Download **patch.py** and run it with Python. It is a self-contained
-module without external dependencies.
-
-    patch.py diff.patch
-
-You can also run the .zip file.
-    
-    python patch-1.16.zip diff.patch
-
-### Installation
-
-**patch.py** is self sufficient. You can copy it into your repository
-and use it from here. This setup will always be repeatable. But if
-you need to add `patch` module as a dependency, make sure to use strict
-specifiers to avoid hitting an API break when version 2 is released:
-
-    pip install "patch==1.*"
-
-
-### Other stuff
-
-* [CHANGES](doc/CHANGES.md)
-* [LICENSE](doc/LICENSE)
-* [CREDITS](doc/CREDITS)
-
-* [test coverage](http://techtonik.github.io/python-patch/tests/coverage/)
+Anatoly Techtonik
+Alex Stewart
+Wladimir J. van der Laan (laanwj)
+azasypkin
+Philippe Ombredanne
+mspncp
+Yen Chi Hsuan (@yan12125)
+Maciej Kucia
