@@ -8,7 +8,8 @@ class TestHelpers(unittest.TestCase):
     longMessage = True
 
     absolute = [b'/', b'c:\\', b'c:/', b'\\', b'/path', b'c:\\path']
-    relative = [b'path', b'path:\\', b'path:/', b'path\\', b'path/', b'path\\path']
+    relative = [b'path', b'path:\\', b'path:/', b'path\\', b'path/',
+                b'path\\path']
 
     def test_xisabs(self):
         for path in self.absolute:
@@ -30,6 +31,7 @@ class TestHelpers(unittest.TestCase):
             self.assertEqual(xstrip(path), path)
 
     def test_pathstrip(self):
-        self.assertEqual(pathstrip(b'path/to/test/name.diff', 2), b'test/name.diff')
+        self.assertEqual(
+            pathstrip(b'path/to/test/name.diff', 2), b'test/name.diff')
         self.assertEqual(pathstrip(b'path/name.diff', 1), b'name.diff')
         self.assertEqual(pathstrip(b'path/name.diff', 0), b'path/name.diff')
