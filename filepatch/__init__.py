@@ -23,52 +23,11 @@ except DistributionNotFound:
     # package is not installed
     pass
 
-# Logging is controlled by logger named after the
-# module name (e.g. 'patch' for patch.py module)
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger('filepatch')
 debug = logger.debug
 info = logger.info
 warning = logger.warning
-
-
-class NullHandler(logging.Handler):
-    """ Copied from Python 2.7 to avoid getting
-        `No handlers could be found for logger "patch"`
-        http://bugs.python.org/issue16539
-    """
-    def handle(self, record):
-        pass
-
-    def emit(self, record):
-        pass
-
-    def createLock(self):
-        self.lock = None
-
-
-streamhandler = logging.StreamHandler()
-
-# initialize logger itself
-logger.addHandler(NullHandler())
-
-debugmode = False
-
-
-def setdebug():
-    global debugmode, streamhandler
-
-    debugmode = True
-    loglevel = logging.DEBUG
-    logformat = "%(levelname)8s %(message)s"
-    logger.setLevel(loglevel)
-
-    if streamhandler not in logger.handlers:
-        # when used as a library, streamhandler is not added
-        # by default
-        logger.addHandler(streamhandler)
-
-    streamhandler.setFormatter(logging.Formatter(logformat))
+logger.addHandler(logging.NullHandler())
 
 # Constants for Patch/PatchSet types
 
@@ -337,11 +296,6 @@ class PatchSet(object):
                         warning("inconsistent line ends in patch hunks for %s"
                                 % p.source)
                         self.warnings += 1
-                    if debugmode:
-                        debuglines = dict(ends)
-                        debuglines.update(file=p.target, hunk=nexthunkno)
-                        debug("crlf: %(crlf)d  lf: %(lf)d  cr: %(cr)d\t"
-                              " - file: %(file)s hunk: %(hunk)d" % debuglines)
                     # fetch next line
                     continue
 
@@ -354,8 +308,6 @@ class PatchSet(object):
                     # switch to filenames state
                     hunkskip = False
                     filenames = True
-                    if debugmode and len(self.items) > 0:
-                        debug("- %2d hunks for %s" % (len(p.hunks), p.source))
 
             if filenames:
                 if line.startswith(b"--- "):
@@ -495,9 +447,6 @@ class PatchSet(object):
                 if len(self.items) == 0:
                     return False
 
-        if debugmode and len(self.items) > 0:
-            debug("- %2d hunks for %s" % (len(p.hunks), p.source))
-
         # XXX fix total hunks calculation
         debug("total files: %d  total hunks: %d" % (len(self.items),
               sum(len(p.hunks) for p in self.items)))
@@ -591,13 +540,7 @@ class PatchSet(object):
 
             return None
         """
-        if debugmode:
-            debug("normalize filenames")
         for i, p in enumerate(self.items):
-            if debugmode:
-                debug("    patch type = " + p.type)
-                debug("    source = " + str(p.source, encoding="utf-8"))
-                debug("    target = " + str(p.target, encoding="utf-8"))
             if p.type in (HG, GIT):
                 # TODO: figure out how to deal with /dev/null entries
                 debug("stripping a/ and b/ prefixes")

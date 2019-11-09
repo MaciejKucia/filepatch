@@ -1,8 +1,7 @@
 import logging
 from os.path import isfile
 
-from filepatch import __version__, logger, streamhandler, setdebug, PatchSet, \
-    fromurl, fromfile
+from filepatch import __version__, PatchSet, fromurl, fromfile
 
 
 def main():
@@ -16,10 +15,8 @@ def main():
                        version="python-patch %s" % __version__)
     opt.add_option("-q", "--quiet", action="store_const", dest="verbosity",
                    const=0, help="print only warnings and errors", default=1)
-    opt.add_option("-v", "--verbose", action="store_const", dest="verbosity",
-                   const=2, help="be verbose")
-    opt.add_option("--debug", action="store_true", dest="debugmode",
-                   help="debug mode")
+    opt.add_option("-v", "--verbose", action="count", dest="verbosity",
+                   default=0, help="verbosity level (use up to 3 times)")
     opt.add_option("--diffstat", action="store_true", dest="diffstat",
                    help="print diffstat and exit")
     opt.add_option("-d", "--directory", metavar='DIR',
@@ -36,14 +33,7 @@ def main():
         sys.exit()
     readstdin = (sys.argv[-1:] == ['--'] and not args)
 
-    verbosity_levels = {0: logging.WARNING, 1: logging.INFO, 2: logging.DEBUG}
-    loglevel = verbosity_levels[options.verbosity]
-    logformat = "%(message)s"
-    logger.setLevel(loglevel)
-    streamhandler.setFormatter(logging.Formatter(logformat))
-
-    if options.debugmode:
-        setdebug()  # this sets global debugmode variable
+    setup_logging(options.verbosity)
 
     if readstdin:
         patch = PatchSet(sys.stdin)
@@ -70,6 +60,17 @@ def main():
     # todo: document and test line ends handling logic - patch.py detects
     # proper line-endings for inserted hunks and issues a warning if patched
     # file has incosistent line ends
+
+
+def setup_logging(verbosity):
+    if verbosity < 1:
+        return
+    logger = logging.getLogger('filepatch')
+    levels = [logging.NOTSET, logging.WARNING, logging.INFO, logging.DEBUG]
+    logger.setLevel(levels[min(3, verbosity)])
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
 
 
 if __name__ == "__main__":
