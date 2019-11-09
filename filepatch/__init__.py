@@ -13,6 +13,8 @@ from os.path import exists, isfile, abspath
 import os
 import shutil
 
+from filepatch.hunk import Hunk
+from filepatch.patch import Patch
 from filepatch.utils import xnormpath, xisabs, xstrip, pathstrip
 
 try:
@@ -113,37 +115,6 @@ def fromstring(s):
     if ps.errors == 0:
         return ps
     return False
-
-
-class Hunk(object):
-    """ Parsed hunk data container (hunk starts with @@ -R +R @@) """
-
-    def __init__(self):
-        self.startsrc = None  #: line count starts with 1
-        self.linessrc = None
-        self.starttgt = None
-        self.linestgt = None
-        self.invalid = False
-        self.desc = ''
-        self.text = []
-
-
-class Patch(object):
-    """ Patch for a single file.
-        If used as an iterable, returns hunks.
-    """
-    def __init__(self):
-        self.source = None
-        self.target = None
-        self.hunks = []
-        self.hunkends = []
-        self.header = []
-
-        self.type = None
-
-    def __iter__(self):
-        for h in self.hunks:
-            yield h
 
 
 class PatchSet(object):
