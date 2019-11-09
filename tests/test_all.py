@@ -23,7 +23,7 @@ Unit tests test API and are all inside this runner.
 To refresh code coverage stats, get 'coverage' tool from
 http://pypi.python.org/pypi/coverage/ and run this file with:
 
-  coverage run run_tests.py
+  coverage run test_all.py
   coverage html -d coverage
 
 On Windows it may be more convenient instead of `coverage` call
@@ -36,10 +36,12 @@ import sys
 import re
 import shutil
 import unittest
-import copy
 from os import listdir
 from os.path import abspath, dirname, exists, join, isdir, isfile
 from tempfile import mkdtemp
+
+import filepatch as patch
+
 try:
   getcwdu = os.getcwdu
 except AttributeError:
@@ -56,12 +58,6 @@ TESTDATA = join(TESTS, 'data')
 def testfile(name):
   return join(TESTDATA, name)
 
-
-# import patch.py from parent directory
-save_path = sys.path
-sys.path.insert(0, dirname(TESTS))
-import patch
-sys.path = save_path
 
 
 # ----------------------------------------------------------------------------
@@ -148,14 +144,13 @@ class TestPatchFiles(unittest.TestCase):
 
       # 3.
       # test utility as a whole
-      patch_tool = join(dirname(TESTS), "patch.py")
       save_cwd = getcwdu()
       os.chdir(tmpdir)
       if verbose:
-        cmd = '%s %s "%s"' % (sys.executable, patch_tool, patch_file)
+        cmd = '%s -m filepatch "%s"' % (sys.executable, patch_file)
         print("\n"+cmd)
       else:
-        cmd = '%s %s -q "%s"' % (sys.executable, patch_tool, patch_file)
+        cmd = '%s -m filepatch -q "%s"' % (sys.executable, patch_file)
       ret = os.system(cmd)
       assert ret == 0, "Error %d running test %s" % (ret, testname)
       os.chdir(save_cwd)
