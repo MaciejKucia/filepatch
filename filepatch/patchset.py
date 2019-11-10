@@ -18,13 +18,11 @@ warning = logger.warning
 
 
 class PatchSetTypes(Enum):
-    DIFF = PLAIN = "plain"
     GIT = "git"
-    HG = MERCURIAL = "mercurial"
-    SVN = SUBVERSION = "svn"
-    # mixed type is only actual when PatchSet contains
-    # Patches of different type
+    HG = "mercurial"
     MIXED = "mixed"
+    PLAIN = "plain"
+    SVN = "svn"
 
 
 class PatchSet(object):
@@ -33,10 +31,6 @@ class PatchSet(object):
     """
 
     def __init__(self, stream=None):
-        # --- API accessible fields ---
-
-        # name of the PatchSet (filename or ...)
-        self.name = None
         # patch set type - one of constants
         self.type = None
 
@@ -906,15 +900,3 @@ class PatchSet(object):
         # [ ] TODO: add test for permission copy
         shutil.copymode(srcname, tgtname)
         return True
-
-    def dump(self):
-        for p in self.items:
-            for headline in p.header:
-                print(headline.rstrip('\n'))
-            print('--- ' + p.source)
-            print('+++ ' + p.target)
-            for h in p.hunks:
-                print('@@ -%s,%s +%s,%s @@' % (h.startsrc, h.linessrc,
-                                               h.starttgt, h.linestgt))
-                for line in h.text:
-                    print(line.rstrip('\n'))

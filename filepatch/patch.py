@@ -10,7 +10,3 @@ class Patch(object):
         self.header = []
 
         self.type = None
-
-    def __iter__(self):
-        for h in self.hunks:
-            yield h
