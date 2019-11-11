@@ -10,6 +10,13 @@ import shutil
 from filepatch.hunk import Hunk
 from filepatch.patch import Patch
 from filepatch.utils import pathstrip, xnormpath, xisabs, xstrip
+from filepatch.wrap_enumerate import WrapEnumerate
+
+HUNKHEAD_REGEX = re.compile(
+    b"^@@ -(\\d+)(,(\\d+))? \\+(\\d+)(,(\\d+))? @@(.*)")
+# regexp to match start of hunk, used groups - 1,3,4,6
+HUNK_REGEX = re.compile(
+    b"^@@ -(\\d+)(,(\\d+))? \\+(\\d+)(,(\\d+))? @@")
 
 logger = logging.getLogger('filepatch')
 debug = logger.debug
@@ -64,49 +71,6 @@ class PatchSet(object):
         # hunkactual variable is used to calculate hunk lines for comparison
         hunkactual = dict(linessrc=None, linestgt=None)
 
-        class wrapumerate(enumerate):
-            """Enumerate wrapper that uses boolean end of stream status instead
-            of StopIteration exception, and properties to access line
-            information.
-            """
-
-            def __init__(self, *args, **kwargs):
-                # we don't call parent, it is magically created by
-                # __new__ method
-
-                self._exhausted = False
-                # after end of stream equal to the num of lines
-                self._lineno = False
-                # will be reset to False after end of stream
-                self._line = False
-
-            def next(self):
-                """Try to read the next line and return True if it is available
-                   False if end of stream is reached."""
-                if self._exhausted:
-                    return False
-
-                try:
-                    self._lineno, self._line = \
-                        super(wrapumerate, self).__next__()
-                except StopIteration:
-                    self._exhausted = True
-                    self._line = False
-                    return False
-                return True
-
-            @property
-            def is_empty(self):
-                return self._exhausted
-
-            @property
-            def line(self):
-                return self._line
-
-            @property
-            def lineno(self):
-                return self._lineno
-
         # define states (possible file regions) that direct parse flow
         headscan = True  # start with scanning header
         filenames = False  # lines starting with --- and +++
@@ -117,9 +81,7 @@ class PatchSet(object):
 
         hunkparsed = False  # state after successfully parsed hunk
 
-        # regexp to match start of hunk, used groups - 1,3,4,6
-        re_hunk_start = re.compile(
-            b"^@@ -(\\d+)(,(\\d+))? \\+(\\d+)(,(\\d+))? @@")
+        re_hunk_start = HUNK_REGEX
 
         self.errors = 0
         # temp buffers for header and filenames info
@@ -129,7 +91,7 @@ class PatchSet(object):
 
         # start of main cycle
         # each parsing block already has line available in fe.line
-        fe = wrapumerate(stream)
+        fe = WrapEnumerate(stream)
         while fe.next():
 
             # -- deciders: these only switch state to decide who should process
@@ -332,8 +294,7 @@ class PatchSet(object):
                             continue
 
             if hunkhead:
-                match = re.match(
-                    b"^@@ -(\\d+)(,(\\d+))? \\+(\\d+)(,(\\d+))? @@(.*)", line)
+                match = HUNKHEAD_REGEX.match(line)
                 if not match:
                     if not p.hunks:
                         warning("skipping invalid patch with no hunks for file"
@@ -370,8 +331,6 @@ class PatchSet(object):
                     hunkbody = True
                     nexthunkno += 1
                     continue
-
-        # /while fe.next()
 
         if p:
             self.items.append(p)
